@@ -1,0 +1,9 @@
+---
+# defaults file for docker-services
+
+services_group: default
+services_enabled: []
+services_vars_path: ''
+
+docker_compose_version: 3.4
+docker_compose_file: "/tmp/docker-compose-{{ services_group }}.yml"

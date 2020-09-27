@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+# docker-compose for group {{ services_group }}
+
+version: {{ docker_compose_version }}
+
+services:
+{% for service in compose_services %}
+  {{ service |to_nice_yaml }}
+{% endfor %}
+
+volumes:
+{% for volume in compose_volumes %}
+    {{ volume }}: {{ compose_volumes[volume]|d('') }}
+{% endfor %}
+
+networks:
+{% for network in compose_networks %}
+  {{ network }}: {{ compose_networks[network]|d('') }}
+{% endfor %}

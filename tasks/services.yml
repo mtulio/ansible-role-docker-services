@@ -1,0 +1,10 @@
+---
+# Read Container definition
+- name: Load IAM roles definitions from vars/aws-iam
+  include_vars: "{{ item }}"
+  with_items:
+    - "services/{{ item_service }}.yaml"
+  register: temp_iam1
+
+- set_fact:
+    temp_iam="{{ temp_iam1 }}"

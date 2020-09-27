@@ -1,0 +1,22 @@
+---
+
+- debug: var=item.dest|dirname
+  when: 
+    - (item.type is defined)
+    - item.type == 'file'
+  with_items: "{{ i_svc.files }}"
+
+- file:
+    name: "{{ item.dest|dirname }}"
+    state: directory
+    recurse: yes
+  with_items: "{{ i_svc.files }}"
+
+- copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    directory_mode: yes
+  when: 
+    - (item.type is defined)
+    - item.type == 'file'
+  with_items: "{{ i_svc.files }}"

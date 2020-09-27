@@ -1,0 +1,9 @@
+---
+
+- name: define networks
+  set_fact:
+    compose_networks: "{{ compose_networks | combine({item: i_net.ansible_facts.networks[item]|d('') }) }}"
+  with_items: "{{ i_net.ansible_facts.networks.keys()|list }}"
+  when: 
+    - (i_net.ansible_facts.networks is defined)
+    - i_net.ansible_facts.networks.keys() |length > 0
