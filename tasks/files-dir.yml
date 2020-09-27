@@ -1,0 +1,10 @@
+--- # Copy recursively
+
+- name: Copy each file
+  copy:
+    src: "{{ i_filename }}"
+    dest: "{{ item.dest }}/"
+  with_fileglob: 
+    - "{{ item.src }}/*"
+  loop_control:
+    loop_var: i_filename

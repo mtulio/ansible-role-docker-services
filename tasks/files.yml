@@ -6,13 +6,16 @@
     - item.type == 'file'
   with_items: "{{ i_svc.files }}"
 
-- file:
+- name: "{{ i_svc.name }} | file | create parent dirs"
+  file:
     name: "{{ item.dest|dirname }}"
     state: directory
     recurse: yes
   with_items: "{{ i_svc.files }}"
+  when: item.type == 'file'
 
-- copy:
+- name: "{{ i_svc.name }} | file | copy files"
+  copy:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     directory_mode: yes
@@ -20,3 +23,24 @@
     - (item.type is defined)
     - item.type == 'file'
   with_items: "{{ i_svc.files }}"
+
+- name: "{{ i_svc.name }} | directory-present | create directories"
+  file:
+    name: "{{ item.dest }}"
+    state: directory
+    recurse: yes
+  with_items: "{{ i_svc.files }}"
+  when: item.type == 'directory-present'
+
+- name: "{{ i_svc.name }} | directory | create parent dirs"
+  file:
+    name: "{{ item.dest }}"
+    state: directory
+    recurse: yes
+  with_items: "{{ i_svc.files }}"
+  when: item.type == 'directory'
+
+- include: files-dir.yml
+  when: item.type == 'directory'
+  with_items: "{{ i_svc.files }}"
+ 
