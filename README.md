@@ -1,5 +1,5 @@
-Role Name
-=========
+docker-services
+===============
 
 Role to build docker-compose files from many services.
 
