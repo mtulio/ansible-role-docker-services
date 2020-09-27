@@ -1,8 +1,10 @@
 ---
 
-- name: define volumes
+- debug: var=i_vol
+
+- name: mount the list of volumes
   set_fact:
-    compose_volumes: "{{ compose_volumes | combine({item: i_vol.ansible_facts.volumes[item]|d('') }) }}"
+    _compose_volumes: "{{ _compose_volumes | combine({item: i_vol.ansible_facts.volumes[item]|d('') }) }}"
   with_items: "{{ i_vol.ansible_facts.volumes.keys()|list }}"
   when: 
     - (i_vol.ansible_facts.volumes is defined)

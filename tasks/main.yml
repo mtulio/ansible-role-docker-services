@@ -1,20 +1,20 @@
 ---
 
 - set_fact:
-    compose_services: []
-    compose_volumes: {}
-    compose_networks: {}
+    _compose_services: []
+    _compose_volumes: {}
+    _compose_networks: {}
 
 - name: Load Services from var file
-  include_vars: "{{ services_vars_path }}{{ item.name|d(item) }}.yml"
-  with_items: "{{ services_enabled }}"
+  include_vars: "{{ docker_services_vars_path }}{{ item.name|d(item) }}.yml"
+  with_items: "{{ docker_services_enabled }}"
   register: resp_svcs
-
-- debug: var=resp_svcs
 
 - name: Mount the list of services
   set_fact:
-    compose_services: "{{ resp_svcs.results | map(attribute='ansible_facts.services') | list }}"
+    _compose_services: "{{ resp_svcs.results | map(attribute='ansible_facts.services') | list }}"
+
+- debug: var=resp_svcs
 
 - name: Mount the list of volumes
   include: volumes.yml
@@ -28,14 +28,15 @@
   loop_control:
     loop_var: i_net
 
-- name: Create the docker-compose file
-  template:
-    src: docker-compose.yaml.j2
-    dest: /tmp/docker-compose-{{ services_group }}.yml
-
 - name: Create complementary file(s) for service
   include: files.yml
   when: i_svc.files is defined
-  with_items: "{{ services_enabled }}"
+  with_items: "{{ docker_services_enabled }}"
   loop_control:
     loop_var: i_svc
+
+- name: Create the docker-compose file
+  template:
+    src: docker-compose.yaml.j2
+    dest: "{{ docker_compose_file }}"
+

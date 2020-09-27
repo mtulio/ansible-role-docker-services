@@ -11,27 +11,65 @@ Requirements
 Role Variables
 --------------
 
-`docker_services: []` the services to mount docker-compose. It could be read from a var file and include dynamically.
+```yaml
+docker_services_workdir: /tmp
+docker_services_group: default
+docker_services_enabled: []      # the services to mount docker-compose file. It could be read from a var file and include dynamically.
+docker_services_vars_path: ''
 
+docker_compose_version: 3.4
+docker_compose_file: "{{ docker_services_workdir }}/docker-compose-{{ services_group }}.yml"
+
+```
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+### Sample 01
 
-    - name: Build Docker Compose for Apps Group
-      hosts: localhost
-      become: no
+Create a docker-compose file with Databases with these steps:
+1. create the service definition on path (as example bellow) `{{ playbook_dir }}/vars/docker-services/arangodb.yml`
+2. create any file dependencies (directories and files that should exists in the destination) - any of those the `files` option will resolve the dependencies
+3. Create the playbook as bellow:
 
-      vars:
-        docker_compose_version: '3.4'
-        services_enabled:
-          - rundeck
-        services_group: apps
-        services_vars_path: "{{ playbook_dir }}/vars/docker-services/{{ services_group }}/"
+```yaml
+- name: Build Docker Compose for DBs Group
+  hosts: localhost
+  become: no
 
-      roles:
-        - mtulio.docker-services
+  vars:
+    docker_services_workdir: /cloud
+    docker_compose_version: '3.4'
+    docker_services_group: dbs
+    docker_services_vars_path: "{{ playbook_dir }}/vars/docker-services/"
+    docker_compose_file: "{{ docker_services_workdir }}/docker-compose-{{ docker_services_group }}.yml"
+    docker_services_enabled:
+      - name: arangodb
+        files:
+          - src: "{{ playbook_dir }}/files/docker-services/arangodb/conf"
+            dest: "{{ docker_services_workdir }}/arangodb/conf"
+            type: directory
+          - dest: "{{ docker_services_workdir }}/dbs/arangodb/apps"
+            type: directory-present
+          - dest: "{{ docker_services_workdir }}/dbs/arangodb/db"
+            type: directory-present
+      - name: prometheus
+        files:
+          - src: "{{ playbook_dir }}/files/docker-services/prometheus/"
+            dest: "{{ docker_services_workdir }}/prometheus"
+            type: directory
+          - dest: "{{ docker_services_workdir }}/dbs/arangodb"
+            type: directory-present
+      - name: rdmysql
+        files:
+          - dest: "{{ docker_services_workdir }}/dbs/mysql-rundeck"
+            type: directory-present
+
+  roles:
+    - mtulio.docker-services
+```
+
+The result will be the docker-compose file `/cloud/docker-compose-dbs.yml`
 
 License
 -------
